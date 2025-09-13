@@ -39,11 +39,11 @@ class LoginViewModel extends ChangeNotifier {
     try {
       LoginResponse? response = await apiRepository.login(
         //TODO: Change
-        // data: {
-        //   "username": emailController.text,
-        //   "password": passwordController.text,
-        // },
-        data: {"username": "test_user", "password": 12345678},
+        data: {
+          "username": emailController.text,
+          "password": passwordController.text,
+        },
+        // data: {"username": "test_user", "password": 12345678},
       );
       if (response?.status == true) {
         _loginResponse = response;

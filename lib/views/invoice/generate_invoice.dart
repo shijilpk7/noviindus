@@ -1,5 +1,6 @@
 import 'package:flutter/services.dart';
 import 'package:noviindus/models/response_models/patient_list_response.dart';
+import 'package:noviindus/utils/app_image.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
@@ -8,7 +9,7 @@ Future<void> generatePatientPdf(Patient? patient) async {
   final pdf = pw.Document();
 
   // ✅ Load Logo
-  final logoBytes = await rootBundle.load('assets/images/logo.png');
+  final logoBytes = await rootBundle.load(AppImages.logo);
   final logoImage = pw.MemoryImage(logoBytes.buffer.asUint8List());
 
   // ✅ Load Fonts

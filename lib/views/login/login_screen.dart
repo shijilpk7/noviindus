@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:noviindus/utils/app_colors.dart';
+import 'package:noviindus/utils/app_image.dart';
 import 'package:noviindus/utils/util_functions.dart';
 import 'package:noviindus/view_models/login_viewmodel.dart';
 import 'package:noviindus/view_models/patient_viewmodel.dart';
@@ -14,7 +15,6 @@ class LoginScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context).textTheme;
-    final loginViewModel = Provider.of<LoginViewModel>(context, listen: false);
     final size = MediaQuery.of(context).size;
 
     return Scaffold(
@@ -26,7 +26,11 @@ class LoginScreen extends StatelessWidget {
         child: SingleChildScrollView(
           padding: const EdgeInsets.only(bottom: 20),
           child: Form(
-            key: loginViewModel.loginFormKey,
+            key:
+                Provider.of<LoginViewModel>(
+                  context,
+                  listen: false,
+                ).loginFormKey,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -36,16 +40,13 @@ class LoginScreen extends StatelessWidget {
                   children: [
                     SizedBox(
                       height: size.height * 0.28,
-                      child: Image.asset(
-                        "assets/images/login_bg.png",
-                        fit: BoxFit.cover,
-                      ),
+                      child: Image.asset(AppImages.loginBG, fit: BoxFit.cover),
                     ),
                     Positioned.fill(
                       child: Align(
                         alignment: Alignment.center,
                         child: Image.asset(
-                          "assets/images/logo.png",
+                          AppImages.logo,
                           height: 80,
                           width: 80,
                         ),
@@ -72,17 +73,28 @@ class LoginScreen extends StatelessWidget {
                     vertical: 10,
                   ),
                   child: AppTextField(
-                    controller: loginViewModel.emailController,
+                    controller:
+                        Provider.of<LoginViewModel>(
+                          context,
+                          listen: false,
+                        ).emailController,
                     label: "Email",
                     hint: "Enter your email",
                     keyboardType: TextInputType.emailAddress,
-                    validator: UtilFunctions.validateEmail,
-                    focusNode: loginViewModel.emailFocus,
+                    validator: UtilFunctions.validateEmailField,
+                    focusNode:
+                        Provider.of<LoginViewModel>(
+                          context,
+                          listen: false,
+                        ).emailFocus,
                     textInputAction: TextInputAction.next,
                     onFieldSubmitted: (_) {
-                      FocusScope.of(
-                        context,
-                      ).requestFocus(loginViewModel.passwordFocus);
+                      FocusScope.of(context).requestFocus(
+                        Provider.of<LoginViewModel>(
+                          context,
+                          listen: false,
+                        ).passwordFocus,
+                      );
                     },
                   ),
                 ),
@@ -95,17 +107,29 @@ class LoginScreen extends StatelessWidget {
                     vertical: 10,
                   ),
                   child: AppTextField(
-                    controller: loginViewModel.passwordController,
+                    controller:
+                        Provider.of<LoginViewModel>(
+                          context,
+                          listen: false,
+                        ).passwordController,
                     label: "Password",
                     hint: "Enter password",
                     obscureText: true,
                     validator: UtilFunctions.validatePassword,
-                    focusNode: loginViewModel.passwordFocus,
+                    focusNode:
+                        Provider.of<LoginViewModel>(
+                          context,
+                          listen: false,
+                        ).passwordFocus,
                     textInputAction: TextInputAction.done,
-                    onFieldSubmitted: (_) => _login(context, loginViewModel),
+                    onFieldSubmitted:
+                        (_) => _login(
+                          context,
+                          Provider.of<LoginViewModel>(context, listen: false),
+                        ),
                   ),
                 ),
-                SizedBox(height: size.height * 0.08),
+                SizedBox(height: size.height * 0.05),
 
                 // Login button
                 Consumer<LoginViewModel>(
@@ -121,7 +145,14 @@ class LoginScreen extends StatelessWidget {
                               borderRadius: BorderRadius.circular(6),
                             ),
                           ),
-                          onPressed: () => _login(context, loginViewModel),
+                          onPressed:
+                              () => _login(
+                                context,
+                                Provider.of<LoginViewModel>(
+                                  context,
+                                  listen: false,
+                                ),
+                              ),
                           child:
                               loginVM.isloading!
                                   ? LoaderWidget()
@@ -131,7 +162,7 @@ class LoginScreen extends StatelessWidget {
                     );
                   },
                 ),
-                SizedBox(height: size.height * 0.18),
+                SizedBox(height: size.height * 0.08),
                 // Footer
                 Padding(
                   padding: const EdgeInsets.symmetric(
@@ -178,7 +209,7 @@ class LoginScreen extends StatelessWidget {
       loginViewModel.login().then((value) {
         if (value) {
           toast(loginViewModel.loginResponse?.message);
-          //get patient data
+          //get patient list data
           Provider.of<PatientViewmodel>(
             context,
             listen: false,

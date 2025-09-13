@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:noviindus/models/response_models/patient_list_response.dart';
 import 'package:noviindus/utils/app_colors.dart';
+import 'package:noviindus/utils/app_image.dart';
 import 'package:noviindus/utils/util_functions.dart';
 import 'package:noviindus/views/invoice/generate_invoice.dart';
 
@@ -64,7 +65,7 @@ class PatientCard extends StatelessWidget {
                         Row(
                           children: [
                             Image.asset(
-                              "assets/images/calender.png",
+                              AppImages.calender,
                               width: 16,
                               height: 16,
                             ),
@@ -79,11 +80,7 @@ class PatientCard extends StatelessWidget {
                               ),
                             ),
                             const SizedBox(width: 12),
-                            Image.asset(
-                              "assets/images/user.png",
-                              width: 16,
-                              height: 16,
-                            ),
+                            Image.asset(AppImages.user, width: 16, height: 16),
                             const SizedBox(width: 4),
                             Text(
                               patient?.user ?? "",

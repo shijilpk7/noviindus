@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:noviindus/utils/app_colors.dart';
+import 'package:noviindus/utils/app_image.dart';
 import 'package:noviindus/view_models/patient_viewmodel.dart';
 import 'package:noviindus/views/common_widgets/loaderwidget.dart';
 import 'package:noviindus/views/common_widgets/no_data_found.dart';
@@ -40,7 +41,7 @@ class BookingListScreen extends StatelessWidget {
                       padding: const EdgeInsets.only(right: 10),
                       child: Badge(
                         child: Image.asset(
-                          "assets/images/notification.png",
+                          AppImages.notification,
                           height: 20,
                           width: 20,
                         ),
@@ -180,10 +181,7 @@ class BookingListScreen extends StatelessWidget {
                                   children: [
                                     Text(formattedDate, style: theme.bodyLarge),
                                     SizedBox(width: 5),
-                                    Image.asset(
-                                      "assets/images/cross.png",
-                                      height: 15,
-                                    ),
+                                    Image.asset(AppImages.cross, height: 15),
                                   ],
                                 ),
                               ),

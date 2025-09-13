@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:noviindus/utils/app_colors.dart';
+import 'package:noviindus/utils/app_image.dart';
 import 'package:noviindus/utils/util_functions.dart';
 import 'package:noviindus/view_models/patient_viewmodel.dart';
 import 'package:noviindus/views/common_widgets/app_dropdown.dart';
 import 'package:noviindus/views/common_widgets/app_textfield.dart';
 import 'package:noviindus/views/common_widgets/loaderwidget.dart';
 import 'package:noviindus/views/common_widgets/no_data_found.dart';
-import 'package:noviindus/views/common_widgets/time_select.dart';
 import 'package:noviindus/views/register_patient/widgets/add_treatment.dart';
 import 'package:noviindus/views/register_patient/widgets/payment_option.dart';
+import 'package:noviindus/views/register_patient/widgets/time_select.dart';
 import 'package:provider/provider.dart';
 
 class RegisterPatient extends StatelessWidget {
@@ -42,7 +43,7 @@ class RegisterPatient extends StatelessWidget {
                         padding: const EdgeInsets.only(right: 10),
                         child: Badge(
                           child: Image.asset(
-                            "assets/images/notification.png",
+                            AppImages.notification,
                             height: 20,
                             width: 20,
                           ),
@@ -65,7 +66,7 @@ class RegisterPatient extends StatelessWidget {
             ),
           ),
 
-          /// ✅ Scrollable body
+          /// Scrollable body
           Expanded(
             child: SingleChildScrollView(
               child: Padding(
@@ -302,7 +303,7 @@ class RegisterPatient extends StatelessWidget {
                                                 );
                                               },
                                               child: Image.asset(
-                                                "assets/images/cross.png",
+                                                AppImages.cross,
                                                 height: 27,
                                               ),
                                             ),
@@ -322,7 +323,7 @@ class RegisterPatient extends StatelessWidget {
                                                 );
                                               },
                                               child: Image.asset(
-                                                "assets/images/edit.png",
+                                                AppImages.edit,
                                                 height: 27,
                                               ),
                                             ),
@@ -337,7 +338,6 @@ class RegisterPatient extends StatelessWidget {
                           );
                         },
                       ),
-                      // const SizedBox(height: 15),
 
                       /// Add Treatment button
                       SizedBox(
@@ -448,7 +448,7 @@ class RegisterPatient extends StatelessWidget {
                                     style: theme.bodyLarge,
                                   ),
                                   Image.asset(
-                                    "assets/images/calender.png",
+                                    AppImages.calender,
                                     height: 16,
                                     color: AppColors.buttonGreen,
                                   ),
@@ -458,37 +458,6 @@ class RegisterPatient extends StatelessWidget {
                           );
                         },
                       ),
-                      // Consumer<PatientViewmodel>(
-                      //   builder: (context, vm, _) {
-                      //     return InkWell(
-                      //       onTap: () async {
-                      //         final picked = await showDatePicker(
-                      //           context: context,
-                      //           initialDate: vm.selectedDate ?? DateTime.now(),
-                      //           firstDate: DateTime(2000),
-                      //           lastDate: DateTime(2100),
-                      //         );
-                      //         if (picked != null) {
-                      //           vm.setDate(picked);
-                      //           patientVM.treatmentDateController.text =
-                      //               DateFormat("dd/MM/yyyy").format(picked);
-                      //         }
-                      //       },
-                      //       child: AppTextField(
-                      //         enabled: false,
-                      //         controller: patientVM.treatmentDateController,
-                      //         label: "Treatment Date",
-                      //         validator: UtilFunctions.validateField,
-                      //         suffixIcon: Image.asset(
-                      //           "assets/images/calender.png",
-                      //           height: 10,
-                      //           width: 10,
-                      //           color: AppColors.buttonGreen,
-                      //         ),
-                      //       ),
-                      //     );
-                      //   },
-                      // ),
                       const SizedBox(height: 15),
 
                       /// Time Picker

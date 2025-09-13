@@ -30,6 +30,13 @@ class UtilFunctions {
     return null;
   }
 
+  static String? validateEmailField(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Email is required';
+    }
+    return null;
+  }
+
   static String formatDateString(String dateString) {
     if (dateString.isNotEmpty) {
       DateTime dateTime = DateTime.parse(dateString);

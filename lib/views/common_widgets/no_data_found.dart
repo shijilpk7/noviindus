@@ -13,11 +13,6 @@ class NoDataFound extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: [
-          // const Image.Asset(
-          //   imageName: "assets/images/no_data.png",
-          //   height: 60,
-          //   width: 60,
-          // ),
           const SizedBox(height: 20),
           Text(
             text ?? "No Data Found",

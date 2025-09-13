@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:noviindus/utils/app_image.dart';
 import 'package:noviindus/views/login/login_screen.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -27,12 +28,9 @@ class _SplashScreenState extends State<SplashScreen> {
       body: Container(
         decoration: const BoxDecoration(
           image: DecorationImage(
-            image: AssetImage("assets/images/splash_bg.png"), // your bg image
+            image: AssetImage(AppImages.splashBG),
             fit: BoxFit.cover,
           ),
-        ),
-        child: Center(
-          child: Image.asset("assets/images/logo.png", width: 120, height: 120),
         ),
       ),
     );
