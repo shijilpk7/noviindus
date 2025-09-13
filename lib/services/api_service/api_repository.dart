@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/rendering.dart';
 import 'package:noviindus/models/response_models/branch_list_response.dart';
 import 'package:noviindus/models/response_models/general_response.dart';
