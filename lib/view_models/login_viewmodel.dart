@@ -38,7 +38,6 @@ class LoginViewModel extends ChangeNotifier {
     notifyListeners();
     try {
       LoginResponse? response = await apiRepository.login(
-        //TODO: Change
         data: {
           "username": emailController.text,
           "password": passwordController.text,

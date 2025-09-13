@@ -87,7 +87,7 @@ class PatientViewmodel extends ChangeNotifier {
     notifyListeners();
   }
 
-  //get patine list
+  //get patients list
 
   Future<bool> getPatientList() async {
     _isloading = true;
@@ -210,7 +210,7 @@ class PatientViewmodel extends ChangeNotifier {
     notifyListeners();
   }
 
-  int? editingIndex; // tracks the index of the treatment being edited
+  int? editingIndex;
 
   void editTreatment(int index) {
     final t = _treatments![index];
