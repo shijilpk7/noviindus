@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:noviindus/utils/app_colors.dart';
 
 class AppTextField extends StatelessWidget {
   final TextEditingController controller;
@@ -14,6 +15,7 @@ class AppTextField extends StatelessWidget {
   final TextInputAction? textInputAction;
   final void Function(String)? onFieldSubmitted;
   final Widget? suffixIcon;
+  final bool? enabled;
 
   const AppTextField({
     super.key,
@@ -28,6 +30,7 @@ class AppTextField extends StatelessWidget {
     this.textInputAction,
     this.onFieldSubmitted,
     this.suffixIcon,
+    this.enabled,
   });
 
   @override
@@ -42,6 +45,7 @@ class AppTextField extends StatelessWidget {
           const SizedBox(height: 8),
         ],
         TextFormField(
+          enabled: enabled ?? true,
           controller: controller,
           focusNode: focusNode,
           textInputAction: textInputAction,
@@ -58,7 +62,23 @@ class AppTextField extends StatelessWidget {
             fillColor: fillColor ?? Colors.grey.shade100,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(6),
-              borderSide: BorderSide.none,
+              borderSide: BorderSide(color: Colors.grey.shade300),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(6),
+              borderSide: BorderSide(color: Colors.grey.shade300),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(6),
+              borderSide: BorderSide(color: Colors.grey.shade300),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(6),
+              borderSide: BorderSide(color: Colors.grey.shade300),
+            ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(6),
+              borderSide: BorderSide(color: Colors.grey.shade300),
             ),
           ),
         ),

@@ -1,3 +1,5 @@
+// ignore_for_file: type_literal_in_constant_pattern
+
 import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
@@ -6,11 +8,14 @@ import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:flutter/material.dart';
-import 'package:noviindus/models/login_response.dart';
+import 'package:noviindus/models/response_models/branch_list_response.dart';
+import 'package:noviindus/models/response_models/general_response.dart';
+import 'package:noviindus/models/response_models/login_response.dart';
+import 'package:noviindus/models/response_models/patient_list_response.dart';
+import 'package:noviindus/models/response_models/treatment_list_response.dart';
 import 'package:noviindus/services/api_service/api_urls.dart';
 import 'package:noviindus/services/local_db/hive_constants.dart';
 import 'package:noviindus/utils/app_constants.dart';
-import 'package:noviindus/views/login/login_screen.dart';
 
 class ApiViewModel {
   Dio dio = Dio();
@@ -45,40 +50,42 @@ class ApiViewModel {
         return client;
       };
     }
-
-    _loadCookiesFromHive();
   }
-  Future<void> weblogout({required String apiUrl}) async {
-    try {
-      await get(apiUrl: '/api/method/logout');
-    } catch (e) {
-      // Ignore if logout fails
-    }
-  }
-
   Future<T?> login<T>({
     required String apiUrl,
     required Map<String, dynamic>? data,
   }) async {
     try {
-      final response = await dio.post(apiUrl, data: data);
-      if (response.headers[HttpHeaders.setCookieHeader] != null) {
-        List<String>? setCookies =
-            response.headers[HttpHeaders.setCookieHeader];
-        Map<String, dynamic> cookies = {};
-        for (var cookie in setCookies!) {
-          await cookieJar.saveFromResponse(Uri.parse(dio.options.baseUrl), [
-            Cookie.fromSetCookieValue(cookie),
-          ]);
-          //cookie issue fixed
-          if ((Cookie.fromSetCookieValue(cookie).value ?? "").isNotEmpty &&
-              (Cookie.fromSetCookieValue(cookie).value != null)) {
-            cookies[Cookie.fromSetCookieValue(cookie).name] =
-                Cookie.fromSetCookieValue(cookie).value;
-          }
+      final formData = FormData.fromMap(data ?? {});
+      final response = await dio.post(apiUrl, data: formData);
+
+      if (response.statusCode == 200) {
+        final parsed = fromJson<T>(response.data);
+
+        // if this is LoginResponse, save the token
+        if (parsed is LoginResponse && parsed.token != null) {
+          await hiveInstance?.saveData(DataBoxKey.kauthKey, parsed.token);
         }
-        await hiveInstance?.saveData(DataBoxKey.cookie, cookies);
+
+        return parsed;
+      } else {
+        throw Failure.fromCode(response.statusCode ?? ResponseCode.DEFAULT);
       }
+    } on DioException catch (error) {
+      throw Failure.fromCode(
+        error.response?.statusCode ?? ResponseCode.DEFAULT,
+      );
+    }
+  }
+
+  Future<T?> get<T>({
+    required String apiUrl,
+    Map<String, dynamic>? params,
+  }) async {
+    try {
+      _attachAuthHeaders();
+
+      Response response = await dio.get(apiUrl, queryParameters: params);
 
       if (response.statusCode == 200) {
         return fromJson<T>(response.data);
@@ -98,10 +105,12 @@ class ApiViewModel {
     Map<String, dynamic>? params,
   }) async {
     try {
-      _attachCookieToHeaders();
+      _attachAuthHeaders();
+      final formData = FormData.fromMap(data ?? {});
+
       Response response = await dio.post(
         apiUrl,
-        data: data,
+        data: formData,
         queryParameters: params,
       );
 
@@ -115,91 +124,6 @@ class ApiViewModel {
         error.response?.statusCode ?? ResponseCode.DEFAULT,
       );
     }
-  }
-
-  Future<T?> delete<T>({required String apiUrl}) async {
-    try {
-      var rawCookies = hiveInstance?.getData(DataBoxKey.cookie);
-
-      Map<String, dynamic>? savedCookies =
-          rawCookies != null ? Map<String, dynamic>.from(rawCookies) : null;
-      if (savedCookies != null && savedCookies.isNotEmpty) {
-        dio.options.headers[HttpHeaders.cookieHeader] = savedCookies.entries
-            .map((e) => '${e.key}=${e.value}')
-            .join('; ');
-      }
-
-      Response response = await dio.delete(apiUrl);
-
-      if (response.statusCode == 200 || response.statusCode == 202) {
-        return fromJson<T>(response.data);
-      } else {
-        throw Failure.fromCode(response.statusCode ?? ResponseCode.DEFAULT);
-      }
-    } on DioException catch (error) {
-      throw Failure.fromCode(
-        error.response?.statusCode ?? ResponseCode.DEFAULT,
-      );
-    }
-  }
-
-  Future<T?> get<T>({
-    required String apiUrl,
-    Map<String, dynamic>? params,
-    Map<String, dynamic>? data,
-    BuildContext? context,
-  }) async {
-    try {
-      _attachCookieToHeaders();
-      Response response = await dio.get(
-        apiUrl,
-        queryParameters: params,
-        data: data,
-      );
-
-      if (response.statusCode == 200) {
-        if ((response.data["session_expired"]) == 1) {
-          if (context != null) {
-            await _forceLogout(context);
-          }
-        }
-        return fromJson<T>(response.data);
-      } else if (response.statusCode == 403 || response.statusCode == 503) {
-        //redirect
-        if (context != null) {
-          await _forceLogout(context);
-        }
-      } else {
-        throw Failure.fromCode(response.statusCode ?? ResponseCode.DEFAULT);
-      }
-    } on DioException catch (error) {
-      log(error.response.toString());
-      if (error.response?.statusCode == 403 ||
-          error.response?.statusCode == 503) {
-        //redirect
-        if (context != null) {
-          await _forceLogout(context);
-        }
-      }
-      throw Failure.fromCode(
-        error.response?.statusCode ?? ResponseCode.DEFAULT,
-      );
-    }
-    return null;
-  }
-
-  Future<void> _forceLogout(BuildContext context) async {
-    debugPrint(
-      "===================================================================logout: ",
-    );
-    // await cookieJar.deleteAll();
-    // hiveInstance?.deleteData(DataBoxKey.cookie);
-    await cookieJar.deleteAll();
-    hiveInstance?.deleteData(DataBoxKey.cookie);
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => const LoginScreen()),
-    );
   }
 
   Future<T?> put<T>({
@@ -207,17 +131,10 @@ class ApiViewModel {
     Map<String, dynamic>? data,
   }) async {
     try {
-      log("data: ${data.toString()}");
-      // _attachCookieToHeaders();
-      var rawCookies = hiveInstance?.getData(DataBoxKey.cookie);
-      Map<String, dynamic>? savedCookies =
-          rawCookies != null ? Map<String, dynamic>.from(rawCookies) : null;
-      if (savedCookies != null && savedCookies.isNotEmpty) {
-        dio.options.headers[HttpHeaders.cookieHeader] = savedCookies.entries
-            .map((e) => '${e.key}=${e.value}')
-            .join('; ');
-      }
-      Response response = await dio.put(apiUrl, data: data);
+      _attachAuthHeaders();
+      final formData = FormData.fromMap(data ?? {});
+      Response response = await dio.put(apiUrl, data: formData);
+
       if (response.statusCode == 200) {
         return fromJson<T>(response.data);
       } else {
@@ -236,7 +153,7 @@ class ApiViewModel {
     required FormData data,
   }) async {
     try {
-      _attachCookieToHeaders();
+      _attachAuthHeaders();
 
       Response response = await dio.post(apiUrl, data: data);
 
@@ -258,34 +175,25 @@ class ApiViewModel {
     switch (T) {
       case LoginResponse:
         return LoginResponse.fromJson(json) as T;
+      case PatientListResponse:
+        return PatientListResponse.fromJson(json) as T;
+      case TreatmentListResponse:
+        return TreatmentListResponse.fromJson(json) as T;
+      case BranchListResponse:
+        return BranchListResponse.fromJson(json) as T;
+      case GeneralResponse:
+        return GeneralResponse.fromJson(json) as T;
 
       default:
         throw FromJsonNotImplementedException();
     }
   }
 
-  void _loadCookiesFromHive() {
-    var rawCookies = hiveInstance?.getData(DataBoxKey.cookie);
-    if (rawCookies != null) {
-      Map<String, dynamic> savedCookies = Map<String, dynamic>.from(rawCookies);
-      if (savedCookies.isNotEmpty) {
-        dio.options.headers[HttpHeaders.cookieHeader] = savedCookies.entries
-            .map((e) => '${e.key}=${e.value}')
-            .join('; ');
-      }
-    }
-  }
-
-  void _attachCookieToHeaders() {
-    final rawCookies = hiveInstance?.getData(DataBoxKey.cookie);
-
-    if (rawCookies != null && rawCookies is Map<String, dynamic>) {
-      final cookieHeader = rawCookies.entries
-          .map((entry) => '${entry.key}=${entry.value}')
-          .join('; ');
-      dio.options.headers[HttpHeaders.cookieHeader] = cookieHeader;
-
-      debugPrint("🍪 Attached cookies to headers: $cookieHeader");
+  void _attachAuthHeaders() {
+    // 🔹 Attach token
+    final token = hiveInstance?.getData("auth_token");
+    if (token != null && token.toString().isNotEmpty) {
+      dio.options.headers["Authorization"] = "Bearer $token";
     }
   }
 }

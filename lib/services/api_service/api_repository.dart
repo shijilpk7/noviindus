@@ -1,12 +1,12 @@
-import 'dart:convert';
 import 'dart:developer';
-import 'dart:io';
-import 'dart:convert';
-import 'dart:developer' as dev;
 
-import 'package:dio/dio.dart' as dio;
-import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import 'package:flutter/rendering.dart';
+import 'package:noviindus/models/response_models/branch_list_response.dart';
+import 'package:noviindus/models/response_models/general_response.dart';
+import 'package:noviindus/models/response_models/login_response.dart';
+import 'package:noviindus/models/response_models/patient_list_response.dart';
+import 'package:noviindus/models/response_models/treatment_list_response.dart';
+import 'package:noviindus/services/api_service/api_urls.dart';
 import 'package:noviindus/services/api_service/api_viewmodel.dart';
 
 class ApiRepository {
@@ -18,38 +18,38 @@ class ApiRepository {
     _apiViewModel = ApiViewModel();
   }
 
-  // Future<LoginResponse?> login({Map<String, dynamic>? data}) async {
-  //   return _apiViewModel!.login<LoginResponse>(
-  //     apiUrl: ApiUrls.klogin,
-  //     data: data,
-  //   );
-  // }
+  Future<LoginResponse?> login({Map<String, dynamic>? data}) async {
+    return _apiViewModel!.login<LoginResponse>(
+      apiUrl: ApiUrls.klogin,
+      data: data,
+    );
+  }
 
-  // Future<SentOtpResponse?> sentOTP({Map<String, dynamic>? data}) async {
-  //   return _apiViewModel!.post<SentOtpResponse>(
-  //     apiUrl: ApiUrls.klogin,
-  //     data: data,
-  //   );
-  // }
+  //patient list
+  Future<PatientListResponse?> getPatientList() async {
+    return _apiViewModel!.get<PatientListResponse>(
+      apiUrl: ApiUrls.kPatientList,
+    );
+  }
 
-  // Future<DelegateListResponse?> getDelegateList({
-  //   Map<String, dynamic>? param,
-  // }) async {
-  //   return _apiViewModel!.get<DelegateListResponse>(
-  //     apiUrl: ApiUrls.kDelegatesList,
-  //     params: param,
-  //   );
-  // }
+  //get treatement list
+  Future<TreatmentListResponse?> getTreatmentList() async {
+    return _apiViewModel!.get<TreatmentListResponse>(
+      apiUrl: ApiUrls.kTreatmentList,
+    );
+  }
 
-  // Future<ProposalListResponseModel?> getProposalList({
-  //   Map<String, dynamic>? param,
-  //   String? id,
-  //   BuildContext? context,
-  // }) async {
-  //   return _apiViewModel!.get<ProposalListResponseModel>(
-  //     apiUrl: ApiUrls.kProposalList,
-  //     params: param,
-  //     context: context,
-  //   );
-  // }
+  //get branch list
+  Future<BranchListResponse?> getBranchList() async {
+    return _apiViewModel!.get<BranchListResponse>(apiUrl: ApiUrls.kBranchList);
+  }
+
+  //post patient detail
+  Future<GeneralResponse?> registerPatient({Map<String, dynamic>? data}) async {
+    debugPrint("request: ${data.toString()}");
+    return _apiViewModel!.post<GeneralResponse>(
+      apiUrl: ApiUrls.kPatientUpdate,
+      data: data,
+    );
+  }
 }

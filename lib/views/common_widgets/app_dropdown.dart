@@ -51,22 +51,27 @@ class CustomDropdown extends StatelessWidget {
               ),
             ],
           ),
+          isExpanded: true, // important for overflow
           initialValue: selectedItem?.isEmpty ?? true ? null : selectedItem,
-          hint: Text(hint ?? "", style: theme.bodyMedium),
+          hint: Text(
+            hint ?? "",
+            style: theme.bodyMedium,
+            overflow: TextOverflow.ellipsis,
+          ),
           items:
               items.map((String item) {
                 return DropdownMenuItem<String>(
                   value: item,
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
                     child: Text(
                       item,
                       style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w400,
-                        height: 1.275,
                         color: AppColors.black,
                       ),
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 );
@@ -83,6 +88,22 @@ class CustomDropdown extends StatelessWidget {
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(6),
               borderSide: BorderSide.none,
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(6),
+              borderSide: BorderSide(color: Colors.grey.shade300),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(6),
+              borderSide: BorderSide(color: Colors.grey.shade300),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(6),
+              borderSide: BorderSide(color: Colors.grey.shade300),
+            ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(6),
+              borderSide: BorderSide(color: Colors.grey.shade300),
             ),
           ),
         ),

@@ -1,5 +1,6 @@
 // payment_option_widget.dart
 import 'package:flutter/material.dart';
+import 'package:noviindus/utils/app_colors.dart';
 import 'package:noviindus/view_models/patient_viewmodel.dart';
 import 'package:provider/provider.dart';
 
@@ -10,38 +11,31 @@ class PaymentOptionWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<PatientViewmodel>(
       builder: (context, viewModel, child) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                "Payment Option",
-                style: TextStyle(
-                  fontFamily: 'Poppins',
-                  fontSize: 16,
-                  fontWeight: FontWeight.w400,
-                  color: Color(0xFF404040),
-                  height: 1.0,
-                ),
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "Payment Option",
+              style: Theme.of(
+                context,
+              ).textTheme.bodyLarge?.copyWith(color: AppColors.black),
+            ),
+            const SizedBox(height: 8),
+            RadioGroup<String?>(
+              groupValue: viewModel.selectedPaymentOption,
+              onChanged: (value) {
+                viewModel.selectOption(value ?? "");
+              },
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  _optionItem(context, viewModel, "Cash"),
+                  _optionItem(context, viewModel, "Card"),
+                  _optionItem(context, viewModel, "UPI"),
+                ],
               ),
-              const SizedBox(height: 8),
-              RadioGroup<String?>(
-                groupValue: viewModel.selectedOption,
-                onChanged: (value) {
-                  viewModel.selectOption(value ?? "");
-                },
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    _optionItem(context, viewModel, "Cash"),
-                    _optionItem(context, viewModel, "Card"),
-                    _optionItem(context, viewModel, "UPI"),
-                  ],
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         );
       },
     );
@@ -52,7 +46,7 @@ class PaymentOptionWidget extends StatelessWidget {
     PatientViewmodel viewModel,
     String option,
   ) {
-    final bool isSelected = viewModel.selectedOption == option;
+    final bool isSelected = viewModel.selectedPaymentOption == option;
 
     return InkWell(
       borderRadius: BorderRadius.circular(20),
@@ -64,15 +58,15 @@ class PaymentOptionWidget extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Radio<String?>(value: option),
+            Radio<String?>(
+              value: option,
+              fillColor: WidgetStatePropertyAll(AppColors.black),
+            ),
             Text(
               option,
-              style: TextStyle(
-                fontFamily: 'Poppins',
-                fontSize: 16,
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                color: AppColors.black,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                color: Colors.black,
-                height: 1.0,
               ),
             ),
           ],

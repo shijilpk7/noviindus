@@ -4,5 +4,7 @@ class ApiUrls {
 
   static const klogin = 'Login';
   static const kPatientList = 'PatientList';
+  static const kTreatmentList = 'TreatmentList';
+  static const kBranchList = 'BranchList';
   static const kPatientUpdate = 'PatientUpdate';
 }

@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:noviindus/utils/app_colors.dart';
 import 'package:noviindus/utils/util_functions.dart';
-import 'package:noviindus/view_models/login_viewmodel.dart';
+import 'package:noviindus/view_models/patient_viewmodel.dart';
 import 'package:noviindus/views/common_widgets/app_dropdown.dart';
 import 'package:noviindus/views/common_widgets/app_textfield.dart';
-import 'package:noviindus/views/common_widgets/custom_appbar.dart';
+import 'package:noviindus/views/common_widgets/loaderwidget.dart';
+import 'package:noviindus/views/common_widgets/no_data_found.dart';
 import 'package:noviindus/views/common_widgets/time_select.dart';
-import 'package:noviindus/views/invoice/invoice_screen.dart';
 import 'package:noviindus/views/register_patient/widgets/add_treatment.dart';
 import 'package:noviindus/views/register_patient/widgets/payment_option.dart';
 import 'package:provider/provider.dart';
@@ -16,331 +17,548 @@ class RegisterPatient extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final loginViewModel = Provider.of<LoginViewModel>(context, listen: false);
+    final patientVM = Provider.of<PatientViewmodel>(context, listen: false);
     final theme = Theme.of(context).textTheme;
+
     return Scaffold(
-      appBar: CustomAppbar(),
-      body: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 24, vertical: 15),
-              child: Text("Register", style: theme.titleLarge),
+      backgroundColor: Colors.white,
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 40),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      IconButton(
+                        onPressed: () => Navigator.pop(context),
+                        icon: const Icon(Icons.arrow_back),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(right: 10),
+                        child: Badge(
+                          child: Image.asset(
+                            "assets/images/notification.png",
+                            height: 20,
+                            width: 20,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 10,
+                  ),
+                  child: Text("Register", style: theme.titleLarge),
+                ),
+                const SizedBox(height: 15),
+                const Divider(color: AppColors.hintText, height: 1),
+              ],
             ),
-            const Divider(color: AppColors.hintText, height: 20),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              child: AppTextField(
-                controller: loginViewModel.emailController,
-                label: "Name",
-                hint: "Enter your full name",
-                keyboardType: TextInputType.emailAddress,
-                validator: UtilFunctions.validateEmail,
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              child: AppTextField(
-                controller: loginViewModel.emailController,
-                label: "Whatsapp Number",
-                hint: "Enter your Whatsapp number",
-                keyboardType: TextInputType.emailAddress,
-                validator: UtilFunctions.validateEmail,
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              child: AppTextField(
-                controller: loginViewModel.emailController,
-                label: "Address",
-                hint: "Enter your full address",
-                keyboardType: TextInputType.emailAddress,
-                validator: UtilFunctions.validateEmail,
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              child: CustomDropdown(
-                label: "Location",
-                hint: "Choose your location",
-                items: ["value 1", "value 2"],
-                onChanged: (value) {},
-                validator: UtilFunctions.validateEmail,
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              child: CustomDropdown(
-                label: "Branch",
-                hint: "Select the branch",
-                items: ["value 1", "value 2"],
-                onChanged: (value) {},
-                validator: UtilFunctions.validateEmail,
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-              child: Text("Treatments", style: theme.bodyLarge),
-            ),
-            ListView.builder(
-              shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
-              itemCount: 2,
-              itemBuilder: (context, index) {
-                return Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-                  child: Container(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
-                      color: AppColors.lightGrey,
-                    ),
-                    child: Column(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.all(12),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "$index.",
-                                style: theme.titleLarge?.copyWith(fontSize: 18),
-                              ),
-                              const SizedBox(width: 6),
-                              Expanded(
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      "Vikram Singh",
-                                      style: theme.titleLarge?.copyWith(
-                                        fontSize: 19,
-                                      ),
-                                    ),
-                                    SizedBox(height: 10),
-                                    Row(
+          ),
+
+          /// ✅ Scrollable body
+          Expanded(
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Form(
+                  key: patientVM.registerFormKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 20),
+
+                      /// Name
+                      AppTextField(
+                        controller: patientVM.nameController,
+                        label: "Name",
+                        hint: "Enter your full name",
+
+                        validator: UtilFunctions.validateField,
+                      ),
+                      const SizedBox(height: 15),
+
+                      /// Whatsapp Number
+                      AppTextField(
+                        controller: patientVM.whatsappController,
+                        label: "Whatsapp Number",
+                        hint: "Enter your Whatsapp number",
+                        keyboardType: TextInputType.phone,
+
+                        validator: UtilFunctions.validateField,
+                      ),
+                      const SizedBox(height: 15),
+
+                      /// Address
+                      AppTextField(
+                        controller: patientVM.addressController,
+                        label: "Address",
+                        hint: "Enter your full address",
+
+                        validator: UtilFunctions.validateField,
+                      ),
+                      const SizedBox(height: 15),
+
+                      /// Location
+                      CustomDropdown(
+                        label: "Location",
+                        hint: "Choose your location",
+                        items: const ["Kochi", "Calicut", "Kannur"],
+                        onChanged: (value) {
+                          patientVM.addsSelectedLocation(value);
+                        },
+                        validator: UtilFunctions.validateField,
+                      ),
+                      const SizedBox(height: 15),
+
+                      /// Branch
+                      Consumer<PatientViewmodel>(
+                        builder: (context, vm, _) {
+                          if (vm.isloading!) {
+                            return LoaderWidget(color: AppColors.black);
+                          } else if ((vm.branchesList ?? []).isEmpty) {
+                            return NoDataFound(
+                              onRefresh: () => vm.getBranchList(),
+                            );
+                          } else {
+                            return CustomDropdown(
+                              selectedItem: vm.selectedBranch,
+                              label: "Branch",
+                              hint: "Select the branch",
+                              items:
+                                  vm.branchesList!
+                                      .map((e) => e.name ?? "")
+                                      .toSet()
+                                      .toList(),
+                              onChanged: (value) {
+                                final selectedItem = vm.branchesList!
+                                    .firstWhere((e) => e.name == value);
+                                vm.addSelectedBranch(selectedItem.id, value);
+                              },
+                              validator: UtilFunctions.validateField,
+                            );
+                          }
+                        },
+                      ),
+                      const SizedBox(height: 15),
+
+                      /// Treatments
+                      Text("Treatments", style: theme.bodyLarge),
+                      Consumer<PatientViewmodel>(
+                        builder: (context, vm, _) {
+                          if ((vm.treatments ?? []).isEmpty) {
+                            return SizedBox(height: 10);
+                          }
+                          return ListView.builder(
+                            padding: EdgeInsets.symmetric(vertical: 5),
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: vm.treatments?.length,
+                            itemBuilder: (context, index) {
+                              final data = vm.treatments?[index];
+                              return Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 5,
+                                ),
+                                child: Container(
+                                  margin: const EdgeInsets.only(bottom: 12),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(8),
+                                    color: AppColors.lightGrey,
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(12),
+                                    child: Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          "Male",
-                                          style: theme.bodyMedium?.copyWith(
-                                            fontSize: 17,
-                                            fontWeight: FontWeight.w500,
-                                            color: AppColors.buttonGreen,
+                                          "$index.",
+                                          style: theme.titleLarge?.copyWith(
+                                            fontSize: 18,
                                           ),
                                         ),
-                                        SizedBox(width: 10),
-                                        Container(
-                                          height: 26,
-                                          padding: EdgeInsets.symmetric(
-                                            horizontal: 15,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            border: Border.all(
-                                              color: AppColors.hintText,
-                                            ),
-                                            borderRadius: BorderRadius.circular(
-                                              8,
-                                            ),
-                                          ),
-                                          child: Text(
-                                            "2",
-                                            style: theme.bodyMedium?.copyWith(
-                                              fontSize: 17,
-                                              fontWeight: FontWeight.w500,
-                                              color: AppColors.buttonGreen,
-                                            ),
+                                        const SizedBox(width: 6),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                data?.name ?? "",
+                                                style: theme.titleLarge
+                                                    ?.copyWith(fontSize: 19),
+                                              ),
+                                              const SizedBox(height: 15),
+                                              Row(
+                                                children: [
+                                                  Text(
+                                                    "Male",
+                                                    style: theme.bodyMedium
+                                                        ?.copyWith(
+                                                          fontSize: 17,
+                                                          fontWeight:
+                                                              FontWeight.w500,
+                                                          color:
+                                                              AppColors
+                                                                  .buttonGreen,
+                                                        ),
+                                                  ),
+                                                  const SizedBox(width: 10),
+                                                  Container(
+                                                    height: 26,
+                                                    padding:
+                                                        const EdgeInsets.symmetric(
+                                                          horizontal: 15,
+                                                        ),
+                                                    decoration: BoxDecoration(
+                                                      border: Border.all(
+                                                        color:
+                                                            AppColors.hintText,
+                                                      ),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            8,
+                                                          ),
+                                                    ),
+                                                    child: Text(
+                                                      "${data?.maleCount ?? 0}",
+                                                      style: theme.bodyMedium
+                                                          ?.copyWith(
+                                                            fontSize: 17,
+                                                            fontWeight:
+                                                                FontWeight.w500,
+                                                            color:
+                                                                AppColors
+                                                                    .buttonGreen,
+                                                          ),
+                                                    ),
+                                                  ),
+                                                  const SizedBox(width: 20),
+                                                  Text(
+                                                    "Female",
+                                                    style: theme.bodyMedium
+                                                        ?.copyWith(
+                                                          fontSize: 17,
+                                                          fontWeight:
+                                                              FontWeight.w500,
+                                                          color:
+                                                              AppColors
+                                                                  .buttonGreen,
+                                                        ),
+                                                  ),
+                                                  const SizedBox(width: 10),
+                                                  Container(
+                                                    height: 26,
+                                                    padding:
+                                                        const EdgeInsets.symmetric(
+                                                          horizontal: 15,
+                                                        ),
+                                                    decoration: BoxDecoration(
+                                                      border: Border.all(
+                                                        color:
+                                                            AppColors.hintText,
+                                                      ),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            8,
+                                                          ),
+                                                    ),
+                                                    child: Text(
+                                                      "${data?.femaleCount ?? 0}",
+                                                      style: theme.bodyMedium
+                                                          ?.copyWith(
+                                                            fontSize: 17,
+                                                            fontWeight:
+                                                                FontWeight.w500,
+                                                            color:
+                                                                AppColors
+                                                                    .buttonGreen,
+                                                          ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
                                           ),
                                         ),
-                                        SizedBox(width: 20),
-                                        Text(
-                                          "Female",
-                                          style: theme.bodyMedium?.copyWith(
-                                            fontSize: 17,
-                                            fontWeight: FontWeight.w500,
-                                            color: AppColors.buttonGreen,
-                                          ),
-                                        ),
-
-                                        SizedBox(width: 10),
-                                        Container(
-                                          height: 26,
-                                          padding: EdgeInsets.symmetric(
-                                            horizontal: 15,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            border: Border.all(
-                                              color: AppColors.hintText,
+                                        Column(
+                                          children: [
+                                            InkWell(
+                                              onTap: () {
+                                                patientVM.deleteTreatment(
+                                                  index,
+                                                );
+                                              },
+                                              child: Image.asset(
+                                                "assets/images/cross.png",
+                                                height: 27,
+                                              ),
                                             ),
-                                            borderRadius: BorderRadius.circular(
-                                              8,
+                                            const SizedBox(height: 15),
+                                            InkWell(
+                                              onTap: () {
+                                                // patientVM.setTreatment(
+                                                //   data?.name,
+                                                //   data?.id,
+                                                //   male: data?.maleCount,
+                                                //   female: data?.femaleCount,
+                                                // );
+                                                vm.editTreatment(index);
+                                                TreatmentDialog.show(
+                                                  context,
+                                                  edit: true,
+                                                );
+                                              },
+                                              child: Image.asset(
+                                                "assets/images/edit.png",
+                                                height: 27,
+                                              ),
                                             ),
-                                          ),
-                                          child: Text(
-                                            "2",
-                                            style: theme.bodyMedium?.copyWith(
-                                              fontSize: 17,
-                                              fontWeight: FontWeight.w500,
-                                              color: AppColors.buttonGreen,
-                                            ),
-                                          ),
+                                          ],
                                         ),
                                       ],
                                     ),
-                                  ],
-                                ),
-                              ),
-                              Column(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                children: [
-                                  Image.asset(
-                                    "assets/images/cross.png",
-                                    height: 27,
                                   ),
-                                  SizedBox(height: 10),
+                                ),
+                              );
+                            },
+                          );
+                        },
+                      ),
+                      // const SizedBox(height: 15),
+
+                      /// Add Treatment button
+                      SizedBox(
+                        height: 50,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.buttonGreenLight,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          onPressed: () {
+                            patientVM.clearTreatmentData();
+                            TreatmentDialog.show(context);
+                          },
+                          child: Text(
+                            "+ Add Treatments",
+                            style: theme.bodyMedium?.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.black,
+                              fontSize: 17,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 15),
+
+                      /// Total Amount
+                      AppTextField(
+                        controller: patientVM.totalAmountController,
+                        label: "Total Amount",
+                        keyboardType: TextInputType.number,
+
+                        validator: UtilFunctions.validateField,
+                      ),
+                      const SizedBox(height: 15),
+
+                      /// Discount Amount
+                      AppTextField(
+                        controller: patientVM.discountAmountController,
+                        label: "Discount Amount",
+                        keyboardType: TextInputType.number,
+
+                        validator: UtilFunctions.validateField,
+                      ),
+                      const SizedBox(height: 15),
+
+                      /// Payment option
+                      const PaymentOptionWidget(),
+                      const SizedBox(height: 15),
+
+                      /// Advance Amount
+                      AppTextField(
+                        controller: patientVM.advanceAmountController,
+                        label: "Advance Amount",
+                        keyboardType: TextInputType.number,
+
+                        validator: UtilFunctions.validateField,
+                      ),
+                      const SizedBox(height: 15),
+
+                      /// Balance Amount
+                      AppTextField(
+                        controller: patientVM.balanceAmountController,
+                        label: "Balance Amount",
+                        keyboardType: TextInputType.number,
+
+                        validator: UtilFunctions.validateField,
+                      ),
+                      const SizedBox(height: 15),
+
+                      /// Treatment Date
+                      Text("Treatment Date", style: theme.bodyLarge),
+                      const SizedBox(height: 8),
+                      Consumer<PatientViewmodel>(
+                        builder: (context, vm, _) {
+                          return InkWell(
+                            onTap: () async {
+                              final picked = await showDatePicker(
+                                context: context,
+                                initialDate: vm.selectedDate ?? DateTime.now(),
+                                firstDate: DateTime(2000),
+                                lastDate: DateTime(2100),
+                              );
+                              if (picked != null) {
+                                vm.setDate(picked);
+                                patientVM.treatmentDateController.text =
+                                    DateFormat("dd/MM/yyyy").format(picked);
+                              }
+                            },
+                            child: Container(
+                              height: 54,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 8,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.grey.shade100,
+                                border: Border.all(color: Colors.grey.shade300),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    patientVM.treatmentDateController.text,
+                                    style: theme.bodyLarge,
+                                  ),
                                   Image.asset(
-                                    "assets/images/edit.png",
-                                    height: 27,
+                                    "assets/images/calender.png",
+                                    height: 16,
+                                    color: AppColors.buttonGreen,
                                   ),
                                 ],
                               ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              child: SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.buttonGreenLight,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  onPressed: () {
-                    TreatmentDialog.show(context);
-                    // Navigator.push(
-                    //   context,
-                    //   MaterialPageRoute(
-                    //     builder: (context) => RegisterPatient(),
-                    //   ),
-                    // );
-                  },
-                  child: Text(
-                    "+ Add Treatments",
-                    style: theme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w800,
-                      color: AppColors.black,
-                      fontSize: 17,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              child: AppTextField(
-                controller: loginViewModel.emailController,
-                label: "Total Amount",
-                keyboardType: TextInputType.number,
-                validator: UtilFunctions.validateField,
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              child: AppTextField(
-                controller: loginViewModel.emailController,
-                label: "Discount Amount",
-                keyboardType: TextInputType.emailAddress,
-                validator: UtilFunctions.validateField,
-              ),
-            ),
+                            ),
+                          );
+                        },
+                      ),
+                      // Consumer<PatientViewmodel>(
+                      //   builder: (context, vm, _) {
+                      //     return InkWell(
+                      //       onTap: () async {
+                      //         final picked = await showDatePicker(
+                      //           context: context,
+                      //           initialDate: vm.selectedDate ?? DateTime.now(),
+                      //           firstDate: DateTime(2000),
+                      //           lastDate: DateTime(2100),
+                      //         );
+                      //         if (picked != null) {
+                      //           vm.setDate(picked);
+                      //           patientVM.treatmentDateController.text =
+                      //               DateFormat("dd/MM/yyyy").format(picked);
+                      //         }
+                      //       },
+                      //       child: AppTextField(
+                      //         enabled: false,
+                      //         controller: patientVM.treatmentDateController,
+                      //         label: "Treatment Date",
+                      //         validator: UtilFunctions.validateField,
+                      //         suffixIcon: Image.asset(
+                      //           "assets/images/calender.png",
+                      //           height: 10,
+                      //           width: 10,
+                      //           color: AppColors.buttonGreen,
+                      //         ),
+                      //       ),
+                      //     );
+                      //   },
+                      // ),
+                      const SizedBox(height: 15),
 
-            //payment option
-            PaymentOptionWidget(),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              child: AppTextField(
-                controller: loginViewModel.emailController,
-                label: "Advance Amount",
-                keyboardType: TextInputType.emailAddress,
-                validator: UtilFunctions.validateField,
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              child: AppTextField(
-                controller: loginViewModel.emailController,
-                label: "Balance Amount",
-                keyboardType: TextInputType.emailAddress,
-                validator: UtilFunctions.validateField,
-              ),
-            ),
+                      /// Time Picker
+                      TreatmentTimePicker(
+                        selectedHour: null,
+                        selectedMinute: null,
+                        onHourChanged: (val) {
+                          patientVM.addTimeHour(val);
+                        },
+                        onMinuteChanged: (val) {
+                          patientVM.addTimeMin(val);
+                        },
+                      ),
+                      const SizedBox(height: 30),
 
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              child: AppTextField(
-                controller: loginViewModel.emailController,
-                label: "Treatment Date",
-                keyboardType: TextInputType.emailAddress,
-                validator: UtilFunctions.validateField,
-                suffixIcon: Image.asset(
-                  "assets/images/calender.png",
-                  height: 18,
-                  width: 18,
-                  color: AppColors.buttonGreen,
-                ),
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              child: TreatmentTimePicker(
-                selectedHour: null,
-                selectedMinute: null,
-                onHourChanged: (val) {
-                  print("Selected Hour: $val");
-                },
-                onMinuteChanged: (val) {
-                  print("Selected Minute: $val");
-                },
-              ),
-            ),
-            SizedBox(height: 30),
-            Padding(
-              padding: const EdgeInsets.all(20),
-              child: SizedBox(
-                width: double.infinity,
-                height: 48,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.buttonGreen,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
+                      /// Save button
+                      Consumer<PatientViewmodel>(
+                        builder: (context, vm, _) {
+                          return SizedBox(
+                            height: 48,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.buttonGreen,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                              onPressed: () {
+                                if (patientVM.registerFormKey.currentState!
+                                    .validate()) {
+                                  if ((vm.treatments ?? []).isEmpty) {
+                                    toast("Add Treatements", isError: true);
+                                    return;
+                                  }
+                                  if ((vm.selectedPaymentOption ?? "")
+                                      .isEmpty) {
+                                    toast("Add Payment option", isError: true);
+                                    return;
+                                  }
+                                  if ((vm.treatments ?? []).isEmpty) {
+                                    toast("Add Treatements", isError: true);
+                                    return;
+                                  }
+                                  patientVM.registerPatient().then((value) {
+                                    if (value) {
+                                      toast("Patients added");
+                                      Navigator.pop(context);
+                                    } else {
+                                      toast(vm.errormsg, isError: true);
+                                      Navigator.pop(context);
+                                    }
+                                  });
+                                }
+                              },
+                              child:
+                                  vm.isloading!
+                                      ? LoaderWidget()
+                                      : Text("Save", style: theme.labelLarge),
+                            ),
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 30),
+                    ],
                   ),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => InvoicePage()),
-                    );
-                  },
-                  child: Text("Save", style: theme.labelLarge),
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

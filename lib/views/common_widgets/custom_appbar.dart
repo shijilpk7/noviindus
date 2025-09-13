@@ -3,13 +3,13 @@ import 'package:noviindus/utils/app_colors.dart';
 
 class CustomAppbar extends StatelessWidget implements PreferredSizeWidget {
   const CustomAppbar({super.key});
-
   @override
   Widget build(BuildContext context) {
     return AppBar(
       backgroundColor: AppColors.white,
       elevation: 0,
       automaticallyImplyLeading: true,
+      iconTheme: IconThemeData(color: AppColors.black),
       actions: [
         Padding(
           padding: const EdgeInsets.only(right: 20),

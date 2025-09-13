@@ -37,13 +37,7 @@ class HiveLocal {
   }
 
   logout() async {
-    await deleteData(DataBoxKey.kUserID);
-    await deleteData(DataBoxKey.kUserName);
-    await deleteData(DataBoxKey.kEmpId);
-    await deleteData(DataBoxKey.kFcmToken);
-    await deleteData(DataBoxKey.kroleProfile);
-    await deleteData(DataBoxKey.kUserEmail);
-    await deleteData(DataBoxKey.cookie);
+    await deleteData(DataBoxKey.kauthKey);
     await _box.clear();
     await _box.close();
     print('All data cleared from Hive on logout.');

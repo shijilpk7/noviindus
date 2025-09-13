@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:noviindus/models/response_models/patient_list_response.dart';
 import 'package:noviindus/utils/app_colors.dart';
-import 'package:noviindus/views/invoice/invoice_screen.dart';
+import 'package:noviindus/utils/util_functions.dart';
+import 'package:noviindus/views/invoice/generate_invoice.dart';
 
 class PatientCard extends StatelessWidget {
   final int? index;
-  const PatientCard({super.key, this.index});
+  final Patient? patient;
 
+  const PatientCard({super.key, this.index, required this.patient});
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context).textTheme;
@@ -35,15 +38,23 @@ class PatientCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          "Vikram Singh",
+                          patient?.name ?? "",
                           style: theme.titleLarge?.copyWith(fontSize: 19),
                         ),
                         const SizedBox(height: 4),
 
                         Text(
-                          "Couple Combo Package (Rejuven...)",
+                          (patient?.patientdetailsSet ?? []).isNotEmpty
+                              ? patient
+                                      ?.patientdetailsSet
+                                      ?.first
+                                      .treatmentName ??
+                                  ""
+                              : "Couple Combo Package (Rejuvenile...)",
+                          maxLines: 1,
                           style: theme.bodyMedium?.copyWith(
                             fontSize: 17,
+                            overflow: TextOverflow.ellipsis,
                             fontWeight: FontWeight.w400,
                             color: AppColors.buttonGreen,
                           ),
@@ -59,7 +70,9 @@ class PatientCard extends StatelessWidget {
                             ),
                             const SizedBox(width: 4),
                             Text(
-                              "31/01/2024",
+                              UtilFunctions.formatDateString(
+                                patient?.createdAt ?? "",
+                              ),
                               style: theme.bodyLarge?.copyWith(
                                 fontSize: 15,
                                 color: AppColors.hintText,
@@ -73,7 +86,7 @@ class PatientCard extends StatelessWidget {
                             ),
                             const SizedBox(width: 4),
                             Text(
-                              "Jithesh",
+                              patient?.user ?? "",
                               style: theme.bodyLarge?.copyWith(
                                 fontSize: 15,
                                 color: AppColors.hintText,
@@ -94,10 +107,7 @@ class PatientCard extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 12),
               child: InkWell(
                 onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => InvoicePage()),
-                  );
+                  generatePatientPdf(patient);
                 },
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,

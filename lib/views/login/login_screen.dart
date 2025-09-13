@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:noviindus/utils/app_colors.dart';
 import 'package:noviindus/utils/util_functions.dart';
 import 'package:noviindus/view_models/login_viewmodel.dart';
+import 'package:noviindus/view_models/patient_viewmodel.dart';
 import 'package:noviindus/views/common_widgets/app_textfield.dart';
+import 'package:noviindus/views/common_widgets/loaderwidget.dart';
 import 'package:noviindus/views/patient_list/patient_list.dart';
 import 'package:provider/provider.dart';
 
@@ -51,7 +53,7 @@ class LoginScreen extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 30),
+                SizedBox(height: size.height * 0.05),
 
                 // Title
                 Padding(
@@ -61,7 +63,7 @@ class LoginScreen extends StatelessWidget {
                     style: theme.titleLarge,
                   ),
                 ),
-                const SizedBox(height: 30),
+                SizedBox(height: size.height * 0.03),
 
                 // Email field
                 Padding(
@@ -84,6 +86,7 @@ class LoginScreen extends StatelessWidget {
                     },
                   ),
                 ),
+                SizedBox(height: size.height * 0.01),
 
                 // Password field
                 Padding(
@@ -96,32 +99,39 @@ class LoginScreen extends StatelessWidget {
                     label: "Password",
                     hint: "Enter password",
                     obscureText: true,
-                    validator: UtilFunctions.validateField,
+                    validator: UtilFunctions.validatePassword,
                     focusNode: loginViewModel.passwordFocus,
                     textInputAction: TextInputAction.done,
                     onFieldSubmitted: (_) => _login(context, loginViewModel),
                   ),
                 ),
-                const SizedBox(height: 70),
+                SizedBox(height: size.height * 0.08),
 
                 // Login button
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                  child: SizedBox(
-                    height: 50,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.buttonGreen,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(6),
+                Consumer<LoginViewModel>(
+                  builder: (context, loginVM, _) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                      child: SizedBox(
+                        height: 50,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.buttonGreen,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                          ),
+                          onPressed: () => _login(context, loginViewModel),
+                          child:
+                              loginVM.isloading!
+                                  ? LoaderWidget()
+                                  : Text("Login", style: theme.labelLarge),
                         ),
                       ),
-                      onPressed: () => _login(context, loginViewModel),
-                      child: Text("Login", style: theme.labelLarge),
-                    ),
-                  ),
+                    );
+                  },
                 ),
-
+                SizedBox(height: size.height * 0.18),
                 // Footer
                 Padding(
                   padding: const EdgeInsets.symmetric(
@@ -161,13 +171,31 @@ class LoginScreen extends StatelessWidget {
   }
 
   _login(BuildContext context, LoginViewModel loginViewModel) {
+    if (loginViewModel.isloading!) {
+      return;
+    }
     if (loginViewModel.loginFormKey.currentState!.validate()) {
-      debugPrint("Email: ${loginViewModel.emailController.text}");
-      debugPrint("Password: ${loginViewModel.passwordController.text}");
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => BookingListScreen()),
-      );
+      loginViewModel.login().then((value) {
+        if (value) {
+          toast(loginViewModel.loginResponse?.message);
+          //get patient data
+          Provider.of<PatientViewmodel>(
+            context,
+            listen: false,
+          ).getPatientList();
+          loginViewModel.clear();
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => BookingListScreen()),
+            (route) => false,
+          );
+        } else {
+          toast(
+            loginViewModel.errormsg ?? "Invalid login credentials",
+            isError: true,
+          );
+        }
+      });
     }
   }
 }
